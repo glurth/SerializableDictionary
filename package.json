@@ -1,0 +1,12 @@
+{
+  "name": "com.defaultcompany.serializabledictionaryproject",
+  "version": "1.0.0",
+  "displayName": "SerializableDictionaryProject",
+  "description": "My Package",
+  "unity": "2019.1",
+  "dependencies": {},
+  "author": {
+    "name": "DefaultCompany"
+  },
+  "hideInEditor": "false"
+}
