@@ -1,5 +1,5 @@
 {
-  "name": "com.Glurth.serializabledictionary",
+  "name": "com.glurth.serializabledictionary",
   "version": "1.0.0",
   "displayName": "SerializableDictionary",
   "description": "SerializableDictionary and PropertyDrawer base class",
