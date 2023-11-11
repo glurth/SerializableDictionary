@@ -1,12 +1,12 @@
 {
-  "name": "com.defaultcompany.serializabledictionaryproject",
+  "name": "com.defaultcompany.serializabledictionary",
   "version": "1.0.0",
-  "displayName": "SerializableDictionaryProject",
-  "description": "My Package",
+  "displayName": "SerializableDictionary",
+  "description": "SerializableDictionary and PropertyDrawer base class",
   "unity": "2019.1",
   "dependencies": {},
   "author": {
-    "name": "DefaultCompany"
+    "name": "Glurth"
   },
   "hideInEditor": "false"
 }
