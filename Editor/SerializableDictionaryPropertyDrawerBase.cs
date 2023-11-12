@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
-//using EyE.Unity.Collections;
+using EyE.Collections;
 using EyE.EditorUnity.Extensions;
 
 namespace EyE.EditorUnity.Collections
@@ -13,6 +13,7 @@ namespace EyE.EditorUnity.Collections
     /// <summary>
     /// property drawer used to display SerializableDictionry.
     /// </summary>
+    [CustomPropertyDrawer(typeof(SerializableDictionary<,>))]
     public class SerializableDictionaryPropertyDrawerBase : PropertyDrawer
     {
 

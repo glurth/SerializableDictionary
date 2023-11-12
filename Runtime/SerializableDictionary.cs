@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace EyE.Unity.Collections
+namespace EyE.Collections
 {
 
     /// <summary>
