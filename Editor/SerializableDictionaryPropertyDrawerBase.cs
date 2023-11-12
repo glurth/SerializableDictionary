@@ -288,9 +288,11 @@ namespace EyE.EditorUnity.Collections
                 if (add)
                 {
                     Undo.RecordObject(property.serializedObject.targetObject, "add to dictionary");
-                    
-                    t.BaseType.InvokeMember("EditorAdd", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic |
-                            System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.InvokeMethod, null, o, new object[0]);
+
+                    System.Reflection.MethodInfo methodInfo = t.GetMethod("EditorAdd", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.FlattenHierarchy);
+                    methodInfo.Invoke(o, new object[0]);
+                    //t.BaseType.InvokeMember("EditorAdd", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic |
+                      //      System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.InvokeMethod, null, o, new object[0]);
                     
                 }
                 EditorGUI.indentLevel--;
