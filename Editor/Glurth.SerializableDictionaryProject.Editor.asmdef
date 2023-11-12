@@ -1,6 +1,7 @@
 {
-    "name": "DefaultCompany.SerializableDictionaryProject.Editor",
+    "name": "Glurth.SerializableDictionaryProject.Editor",
     "references": [
+        "Glurth.SerializableDictionaryProject"
     ],
     "includePlatforms": [
         "Editor"
