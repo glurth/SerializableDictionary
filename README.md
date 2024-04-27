@@ -1,6 +1,6 @@
 # Unity Serializable Dictionary
 
-This repository provides an implementation of a serializable dictionary for Unity, enabling the serialization of dictionary data types so they can be viewed and edited within the Unity Editor. This package includes a serializable dictionary class along with a custom property drawer to enhance editor functionality.
+This repository provides an implementation of a serializable dictionary for Unity, enabling the serialization of dictionary data types so they can be viewed and edited within the Unity Editor. This package includes a serializable dictionary class along with a custom property drawer to display it in the editor.
 
 ## Features
 
@@ -68,7 +68,3 @@ public class ExampleUsage : MonoBehaviour {
 ```
 
 With this setup, `myDictionary` will be visible in the Unity Inspector with an interface for adding, editing, and removing dictionary entries.
-
-## Conclusion
-
-The Serializable Dictionary for Unity simplifies the use of dictionaries in Unity projects by ensuring they are editable and visible in the Unity Editor. This tool is particularly useful for game developers seeking to streamline data management and enhance their development workflows.
