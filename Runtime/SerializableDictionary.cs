@@ -42,6 +42,14 @@ namespace EyE.Collections
         {
             internalDicionary = new Dictionary<TKeyType, TValueType>(toCopy);
         }
+        /// <summary>
+        /// Initializes the Dictionary with a number of elements allocated, but does not assign any elements.
+        /// </summary>
+        /// <param name="len">number of elements the dictionary should be initially allocated.</param>
+        public SerializableDictionary(Dictionary<TKeyType, TValueType> toCopy)
+        {
+            internalDicionary = new Dictionary<TKeyType, TValueType>(toCopy);
+        }
 
         /// <summary>
         /// This field exists for use by the propertyDrawer.  It provides a place to store a new entry's Key information
