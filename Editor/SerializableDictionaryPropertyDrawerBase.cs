@@ -47,6 +47,8 @@ namespace EyE.EditorUnity.Collections
         SerializedProperty lastProperty =null;
         bool DrawKeyValueHorizontaly = true;
         bool PutFoldoutInBox = false;
+ 
+        Vector2 scrollPos;
         /// <summary>
         /// Function performs the actual drawing of the SerializableDictionary object
         /// </summary>
@@ -66,6 +68,7 @@ namespace EyE.EditorUnity.Collections
                 int listSize = pairKListProperty.arraySize;
                 Rect foloutRect = position;
                 foloutRect.height = EditorGUIUtility.singleLineHeight;
+                foloutRect.width /= 2;
                 label = new GUIContent(label);
                 label.text += "  " + listSize + " Entries";
                 expand = property.isExpanded;//test
@@ -74,10 +77,43 @@ namespace EyE.EditorUnity.Collections
                 position.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
                 if (expand)
                 {
+                    
+                    foloutRect.xMin += foloutRect.width + 5;
+                    foloutRect.width = 19;
+                    if (GUI.Button(foloutRect, new GUIContent("O", "Toggle outline")))
+                        PutFoldoutInBox = !PutFoldoutInBox;
+                   
                     Rect outerBox = position;
                     position.width -= 4;
                     EditorGUI.indentLevel++;
                     position.height = EditorGUIUtility.singleLineHeight;
+                    float elementsHeight = GetAllEntriesHeight(property, null);
+
+                    Rect contentRect = new Rect(0, 0, position.width - GUI.skin.verticalScrollbar.fixedWidth, elementsHeight);
+                    Rect scrollRect = position;
+                    bool usingScroll = false;
+                    if (contentRect.height > 300)
+                    {
+                        usingScroll = true;
+                        scrollRect.height = 300;
+
+                        scrollRect=DrawRectOutline(scrollRect, Color.black);
+                        contentRect.xMax -= 1;
+                        contentRect.xMin += 1;
+
+                        scrollPos = GUI.BeginScrollView(scrollRect, scrollPos, contentRect);
+                    }
+                    else
+                    {
+                        scrollRect.height = elementsHeight;
+                        if (PutFoldoutInBox)
+                        {
+                            scrollRect.height += 2;
+                            scrollRect = DrawRectOutline(scrollRect, Color.black);
+                        }
+                        contentRect = scrollRect;
+                    }
+                    contentRect.height = position.height;
 
                     for (int i = 0; i < listSize; i++)
                     {
@@ -85,71 +121,88 @@ namespace EyE.EditorUnity.Collections
                         SerializedProperty valueProperty = pairVListProperty.GetArrayElementAtIndex(i);
                         float keyHeight = EditorGUI.GetPropertyHeight(keyProperty);
                         float valueHeight = EditorGUI.GetPropertyHeight(valueProperty);
-                        if (PutFoldoutInBox)//EditorToolsOptions.SerializedDictionaryPropertyDrawerPutFoldoutInBox.Value)
+                        if (i%2==0)//PutFoldoutInBox)//EditorToolsOptions.SerializedDictionaryPropertyDrawerPutFoldoutInBox.Value)
                         {
-                            Rect box = position;
-                            box.xMin -= 16;
-                            box.xMax += 2;
+                            Rect box = contentRect;
+                           // box.xMin += 2;// 16;
+                            //box.xMax += 2;
                             if (DrawKeyValueHorizontaly)//EditorToolsOptions.SerializedDictionaryPropertyDrawerDrawKeyValueHorizontaly.Value)
                                 box.height = Mathf.Max(keyHeight, valueHeight) + (2 * EditorGUIUtility.standardVerticalSpacing);
                             else
                                 box.height = keyHeight + valueHeight + 3 * EditorGUIUtility.standardVerticalSpacing;
-                            EditorGUI.DrawRect(box,Color.gray);
-                          //  EditorUtil.BeginDarkenedBox(box);
+                            //DrawRectOutline(box, Color.black);
+                            EditorGUI.DrawRect(box, Color.gray* 1.4f);
+                            //  EditorUtil.BeginDarkenedBox(box);
+                      
                         }
-                        Rect buttonPos = position;
-                        buttonPos.xMin -= 14;
-                        buttonPos.width = 14;
-                        buttonPos.yMin += 4;
+                        Rect buttonPos = contentRect;
+                        //buttonPos.xMin -= 14;
+                        buttonPos.width = 16;
+                        buttonPos.xMin += 2;
+                        buttonPos.yMin += 2;
                         buttonPos.yMax -= 2;
-                        bool click = GUI.Button(buttonPos, "-");
+                        Color oldBG = GUI.backgroundColor;
+                        GUI.backgroundColor = new Color(1,.75f,.76f);
+                        bool click = GUI.Button(buttonPos, new GUIContent("-","Delete Key/Value entry"));
+                        GUI.backgroundColor = oldBG;
                         if (click)
                         {
-                            deleteClick = true;
-                            deleteIndex = i;
+                            if (EditorUtility.DisplayDialog(
+                                    "Confirm Action",
+                                    "Are you sure you want to delete this entry?",
+                                    "Yes",
+                                    "No"))
+                            {
+                                deleteClick = true;
+                                deleteIndex = i;
+                            }
                         }
-                        
+
                         //                    position.width -= 4;
                         //                  position.width += 4;
-                        position.y += EditorGUIUtility.standardVerticalSpacing;
-                        float fullWidth = position.width;
+                        contentRect.y += EditorGUIUtility.standardVerticalSpacing;
+                        float fullWidth = contentRect.width;// -1;
                         float initialLabelWidth = EditorGUIUtility.labelWidth;
-                        float initialX = position.x;
+                        float initialX = contentRect.x;
+                        contentRect.width -= 2;
+
                         if (DrawKeyValueHorizontaly)//EditorToolsOptions.SerializedDictionaryPropertyDrawerDrawKeyValueHorizontaly.Value)
                         {
-                            position.width *= 0.5f;
-                            position.width -= 2;
-                            EditorGUIUtility.labelWidth = position.width * 0.5f;
+                            contentRect.width *= 0.5f;
+                            EditorGUIUtility.labelWidth = contentRect.width * 0.5f;
 
                         }
-                        EditorGUI.PropertyField(position, keyProperty, KeyLabel(), true);// + keyProperty.type));
+                        Rect keyPos = contentRect;
+                        keyPos.xMin += buttonPos.width;
+                        EditorGUI.PropertyField(keyPos, keyProperty, KeyLabel(), true);// + keyProperty.type));
                          
                         float currentKeyHeight= EditorGUI.GetPropertyHeight(keyProperty, KeyLabel(), true) + EditorGUIUtility.standardVerticalSpacing;
                         if (DrawKeyValueHorizontaly)//EditorToolsOptions.SerializedDictionaryPropertyDrawerDrawKeyValueHorizontaly.Value)
                         {
-                            position.x += position.width + 2;
+                            contentRect.x += contentRect.width + 2;
+                            contentRect.xMax -= 2;
                         }
                         else
-                            position.y += currentKeyHeight;// EditorGUI.GetPropertyHeight(keyProperty, KeyLabel(),true) + EditorGUIUtility.standardVerticalSpacing;
+                        {
+                            contentRect.y += currentKeyHeight;// EditorGUI.GetPropertyHeight(keyProperty, KeyLabel(),true) + EditorGUIUtility.standardVerticalSpacing;
+                            contentRect.xMin += buttonPos.width;
+                        }
                         
 
-                        EditorGUI.PropertyField(position, valueProperty, ValueLabel(), true);// + valueProperty.type));
+                        EditorGUI.PropertyField(contentRect, valueProperty, ValueLabel(), true);// + valueProperty.type));
                         float currentValueHeight = EditorGUI.GetPropertyHeight(valueProperty, ValueLabel(), true) + EditorGUIUtility.standardVerticalSpacing;
                         if (DrawKeyValueHorizontaly)
-                            position.y += Mathf.Max(currentKeyHeight, currentValueHeight);
+                            contentRect.y += Mathf.Max(currentKeyHeight, currentValueHeight);
                         else
-                            position.y += currentValueHeight;
+                            contentRect.y += currentValueHeight;
 
-                        position.width = fullWidth;
-                        position.x = initialX;
+                        contentRect.width = fullWidth;
+                        contentRect.x = initialX;
                         EditorGUIUtility.labelWidth = initialLabelWidth;
-                        //  position.y += EditorGUIUtility.standardVerticalSpacing;
-                      //  if (EditorToolsOptions.SerializedDictionaryPropertyDrawerPutFoldoutInBox.Value)
-                       //     EditorUtil.EndDarkenedBox();
-
-                        // position.y += EditorGUIUtility.standardVerticalSpacing;
-
                     }
+                    if (usingScroll)
+                        GUI.EndScrollView();
+                    position.y += scrollRect.height;
                     // position.y += EditorGUIUtility.standardVerticalSpacing;
                     EditorGUI.indentLevel--;
 
@@ -158,10 +211,8 @@ namespace EyE.EditorUnity.Collections
                     {
                         if (deleteClick)
                         {
-                            Debug.Log("delete clicked, opening ConfirmDelete dialog window. current event: " + Event.current + "   Event type: " + Event.current.type);
                             lastProperty = property;
-                            //  ConfirmPopupWindow.PopUp(ConfirmPopupCallback, "Confirm", "Confirm you would like to delete this entry",new Rect(position.center,new Vector2(300,100)));
-                            ConfirmPopupCallback(true);
+                            DeleteAtIndex(lastProperty, deleteIndex);
                             deleteClick = false;
                         }
 
@@ -169,8 +220,7 @@ namespace EyE.EditorUnity.Collections
                     DrawNewElementSection(position, property);
 
                 }//end property expanded
-                 //  if (EditorToolsOptions.SerializedDictionaryPropertyDrawerPutFoldoutInBox.Value)
-                 //     EditorUtil.EndDarkendBox();
+
             }
             catch(System.Exception e)
             {
@@ -210,21 +260,8 @@ namespace EyE.EditorUnity.Collections
            // height += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
             if (property.isExpanded)
             {
-              //  height += EditorGUIUtility.standardVerticalSpacing;// space between top of outer box and top of first inner/element box OR space between inner boxes
-                for (int i = 0; i < listSize; i++)
-                {
-                   // height += EditorGUIUtility.standardVerticalSpacing;// space between top of inner box and key field
-                SerializedProperty keyProperty = pairKListProperty.GetArrayElementAtIndex(i);
-                    SerializedProperty valueProperty = pairVListProperty.GetArrayElementAtIndex(i);
-                    height += 2 * EditorGUIUtility.standardVerticalSpacing;//space before between and after key and value fields
-                    float keyHeight = EditorGUI.GetPropertyHeight(keyProperty,true);
-                    float valueHeight = EditorGUI.GetPropertyHeight(valueProperty,true);
-                    if (DrawKeyValueHorizontaly)//EditorToolsOptions.SerializedDictionaryPropertyDrawerDrawKeyValueHorizontaly.Value)
-                        height += Mathf.Max(keyHeight, valueHeight);
-                    else
-                        height += keyHeight + valueHeight + EditorGUIUtility.standardVerticalSpacing;
-                    //  height += EditorGUIUtility.singleLineHeight / 2;
-                }
+                height += GetAllEntriesHeight(property, label);
+
                 height += EditorGUIUtility.standardVerticalSpacing;// space between bottom of last inner box and new element section
                 height += GetNewElementSectionHeight(property);
             }
@@ -232,6 +269,44 @@ namespace EyE.EditorUnity.Collections
             
             return height;
         }
+
+        public float GetAllEntriesHeight(SerializedProperty property, GUIContent label)
+        {
+            SerializedProperty iterator = property.Copy();
+
+            SerializedProperty pairKListProperty = property.FindPropertyRelative("pairKList");
+            SerializedProperty pairVListProperty = property.FindPropertyRelative("pairVList");
+
+            if (pairKListProperty == null || pairVListProperty == null)
+            {
+                Debug.Log("pairKListProperty == null: " + (pairKListProperty == null).ToString() + "\npairVListProperty == null" + (pairVListProperty == null).ToString());
+                return 100;
+            }
+
+            int listSize = pairKListProperty.arraySize;
+            float height = 0;
+
+
+            if (property.isExpanded)
+            {
+                for (int i = 0; i < listSize; i++)
+                {
+                    SerializedProperty keyProperty = pairKListProperty.GetArrayElementAtIndex(i);
+                    SerializedProperty valueProperty = pairVListProperty.GetArrayElementAtIndex(i);
+                    height += 2 * EditorGUIUtility.standardVerticalSpacing;
+                    float keyHeight = EditorGUI.GetPropertyHeight(keyProperty, true);
+                    float valueHeight = EditorGUI.GetPropertyHeight(valueProperty, true);
+                    if (DrawKeyValueHorizontaly)
+                        height += Mathf.Max(keyHeight, valueHeight);
+                    else
+                        height += keyHeight + valueHeight + EditorGUIUtility.standardVerticalSpacing;
+                }
+            }
+
+            return height;
+        }
+
+
 
         // bool showAddNewEntrySection;
         /// <summary>
@@ -246,19 +321,24 @@ namespace EyE.EditorUnity.Collections
             SerializedProperty newvalueProp = property.FindPropertyRelative("editorNewValueValue");
             float keyHeight = EditorGUI.GetPropertyHeight(newKeyProp);
             float valueHeight = EditorGUI.GetPropertyHeight(newvalueProp);
-            if (true)//EditorToolsOptions.SerializedDictionaryPropertyDrawerPutFoldoutInBox.Value)
+            if (PutFoldoutInBox)
             {
                 Rect box = pos;
-                box.xMax += 2;
+                //box.xMin -= 2;
+                //box.xMax += 2;
                 box.height = GetNewElementSectionHeight(property);
-              //  EditorUtil.BeginDarkenedBox(box);
+                box=DrawRectOutline(box, Color.black);
+                box.height = pos.height;
+                pos = box;
+                pos.xMax -= 2;
             }
             EditorGUI.indentLevel++;
-            //showAddNewEntrySection = newKeyProp.isExpanded;
+            
             newKeyProp.isExpanded = EditorGUI.Foldout(pos, newKeyProp.isExpanded, new GUIContent("Add new entry"), true);
             
             if (newKeyProp.isExpanded)
             {
+               // EditorGUI.DrawRect(box, Color.yellow);
                 object o = property.GetValue();
                 System.Type t = o.GetType();
                 System.Reflection.PropertyInfo isValidProp=t.GetProperty("IsEditorAddKeyValid", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic |
@@ -349,22 +429,7 @@ namespace EyE.EditorUnity.Collections
                 valueLabel= new GUIContent("Value", "Value that is associated with the Key.");
             return valueLabel;
         }
-        /// <summary>
-        /// pups up a unity dialog to confirm deletion of an element
-        /// </summary>
-        /// <returns>true if deletion is confirmed by the user</returns>
-        bool ConfirmDelete()
-        {
-            return EditorUtility.DisplayDialog("Confirm Delete",
-                "Confirm you would like to delete this entry.", "Delete", "Cancel");
-        }
-        void ConfirmPopupCallback(bool result)
-        {
-            if (result && lastProperty != null)
-            {
-                DeleteAtIndex(lastProperty, deleteIndex);
-            }
-        }
+
         private static System.Reflection.MethodInfo m_RepaintInspectors = null;
         public static void RepaintAllInspectors()
         {
@@ -395,12 +460,36 @@ namespace EyE.EditorUnity.Collections
                         pairVListProperty.DeleteArrayElementAtIndex(deleteIndex);
                 pairVListProperty.DeleteArrayElementAtIndex(deleteIndex);
 
-                Debug.Log("post remove: pairKListProperty count " + pairKListProperty.arraySize);
-                Debug.Log("post remove: pairVListProperty count " + pairVListProperty.arraySize);
+                //Debug.Log("post remove: pairKListProperty count " + pairKListProperty.arraySize);
+                //Debug.Log("post remove: pairVListProperty count " + pairVListProperty.arraySize);
                 property.serializedObject.ApplyModifiedProperties();
-                Debug.Log("post Apply: pairKListProperty count " + pairKListProperty.arraySize);
-                Debug.Log("post Apply: pairVListProperty count " + pairVListProperty.arraySize);
+                //Debug.Log("post Apply: pairKListProperty count " + pairKListProperty.arraySize);
+                //Debug.Log("post Apply: pairVListProperty count " + pairVListProperty.arraySize);
             }
+        }
+
+        /// <summary>
+        /// draws a rect outline around the specified rect (inside rect only).  returns a rect that specifies the interior, non-outline rect.
+        /// </summary>
+        /// <param name="rect"></param>
+        /// <param name="color"></param>
+        /// <param name="thickness"></param>
+        /// <returns></returns>
+        static Rect DrawRectOutline(Rect rect, Color color, float thickness = 1f)
+        {
+            // Top Edge
+            EditorGUI.DrawRect(new Rect(rect.x, rect.y, rect.width, thickness), color);
+            // Bottom Edge
+            EditorGUI.DrawRect(new Rect(rect.x, rect.yMax - thickness, rect.width, thickness), color);
+            // Left Edge
+            EditorGUI.DrawRect(new Rect(rect.x, rect.y, thickness, rect.height), color);
+            // Right Edge
+            EditorGUI.DrawRect(new Rect(rect.xMax - thickness, rect.y, thickness, rect.height), color);
+            rect.xMin += thickness;
+            rect.xMax -= thickness;
+            rect.yMin += thickness;
+            rect.yMax -= thickness;
+            return rect;
         }
     }
 }
