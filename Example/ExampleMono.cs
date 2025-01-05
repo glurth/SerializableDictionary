@@ -16,5 +16,6 @@ public class ExampleMono : MonoBehaviour
 {
     public int anInt;
     public SerializableDictionary<int, SampleDataClass> testDic = new SerializableDictionary<int, SampleDataClass>();
+    public SerializableDictionary<int, string> testDic2 = new SerializableDictionary<int, string>();
     public string aString;
 }

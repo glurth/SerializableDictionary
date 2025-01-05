@@ -13,7 +13,7 @@ namespace EyE.EditorUnity.Collections
     /// <summary>
     /// property drawer used to display SerializableDictionry.
     /// </summary>
-    [CustomPropertyDrawer(typeof(SerializableDictionary<,>))]
+    [CustomPropertyDrawer(typeof(SerializableDictionary<,>),true)]
     public class SerializableDictionaryPropertyDrawerBase : PropertyDrawer
     {
 
