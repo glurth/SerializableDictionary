@@ -12,10 +12,19 @@ public class SampleDataClass
     public Sel eNumVal;
 }
 
+/// <summary>
+/// This is a concrete, non generic version of SerializableDictionary<int, SampleDataClass> and so, will display using the SerializableDictionary's CustomPropertyDrawer
+/// Note: it must have the [System.Serializable] attribute
+/// </summary>
+[System.Serializable]
+public class SampleDataByInt : SerializableDictionary<int, SampleDataClass> { }
+
 public class ExampleMono : MonoBehaviour
 {
     public int anInt;
-    public SerializableDictionary<int, SampleDataClass> testDic = new SerializableDictionary<int, SampleDataClass>();
-    public SerializableDictionary<int, string> testDic2 = new SerializableDictionary<int, string>();
+    //this member will not display properly in unity editor because it is generic
+    public SerializableDictionary<int, SampleDataClass> testSerializableDictionaryDic = new SerializableDictionary<int, SampleDataClass>();
+    //this member will display properly in unity editor as it is a concrete, non-generic class
+    public SampleDataByInt sampleDataByIntDic = new SampleDataByInt();
     public string aString;
 }

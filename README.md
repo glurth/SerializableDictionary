@@ -47,7 +47,7 @@ Unity will clone the repository and the package will appear in your list of pack
 
 ### 2. SerializableDictionaryPropertyDrawerBase
 
-`SerializableDictionaryPropertyDrawerBase` is designed to provide a custom property drawer for `SerializableDictionary` in Unity, enabling easy modification of dictionary entries through the Unity Inspector.
+`SerializableDictionaryPropertyDrawerBase` is designed to provide a custom property drawer for `SerializableDictionary` in Unity, enabling easy modification of dictionary entries through the Unity Inspector. For this to work, you will need to derive a concrete variant of SerializableDictionary, with the [System.Serializable] attribute applied to it.
 
 #### Features
 
