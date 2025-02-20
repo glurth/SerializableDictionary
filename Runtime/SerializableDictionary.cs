@@ -60,41 +60,45 @@ namespace EyE.Collections
         /// </summary>
         public TValueType editorNewValueValue;
 
-
+        /*
         /// <summary>
         /// After checking IsEditorAddKeyValid, the two new entry keys editorNewKeyValue and editorNewValueValue, will be used to create a new entry in the dictionary.
         /// </summary>
         public void EditorAdd()
         {
-            if (IsEditorAddKeyValid)
+            if (CheckEditorAddKeyValid)
             {
                 pairKList.Add(editorNewKeyValue);
                 pairVList.Add(editorNewValueValue);
                 this.Add(editorNewKeyValue, editorNewValueValue);
             }
-        }
+        }*/
 
 
 
         /// <summary>
         /// ReadOnly property that return True, if the new entry key editorNewKeyValue does not already exist in the dictionary.  The new key value may not be null.
         /// </summary>
-        public bool IsEditorAddKeyValid
+        bool CheckEditorAddKeyValid()
         {
-            get
+            if (editorNewKeyValue == null) return false;
+
+            // if (ReferenceEquals(editorNewKeyValue, null)) return false;
+            if (typeof(UnityEngine.Object).IsAssignableFrom(editorNewKeyValue.GetType()))
             {
-                if (editorNewKeyValue == null) return false;
-                
-               // if (ReferenceEquals(editorNewKeyValue, null)) return false;
-                if (typeof(UnityEngine.Object).IsAssignableFrom(editorNewKeyValue.GetType()))
-                {
-                    if (!(editorNewKeyValue as UnityEngine.Object)) return false;
-                }
-                if (this.ContainsKey(editorNewKeyValue)) return false;
-                if (pairKList.Contains(editorNewKeyValue)) return false;
-                return true;
+                if (!(editorNewKeyValue as UnityEngine.Object)) return false;
             }
+            if (this.ContainsKey(editorNewKeyValue)) return false;
+            if (pairKList.Contains(editorNewKeyValue)) return false;
+            return true;
         }
+
+        [SerializeField]
+        bool isEditorAddKeyValid;
+        [SerializeField]
+        string keyTypeName;
+        [SerializeField]
+        string valueTypeName;
 
         /// <summary>
         /// returns the all the Keys in the dictionary as a Collection
@@ -189,6 +193,9 @@ namespace EyE.Collections
             {
                 Debug.LogWarning("Unable to deserialize:  keylist, or value list == null");
             }
+            isEditorAddKeyValid = CheckEditorAddKeyValid();
+            keyTypeName = typeof(TKeyType).Name;
+            valueTypeName = typeof(TValueType).Name;
         }
 
         /// <summary>

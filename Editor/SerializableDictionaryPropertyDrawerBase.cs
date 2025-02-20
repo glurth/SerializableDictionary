@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using EyE.Collections;
-using EyE.EditorUnity.Extensions;
+//using EyE.EditorUnity.Extensions;
 
 namespace EyE.EditorUnity.Collections
 
@@ -338,20 +338,23 @@ namespace EyE.EditorUnity.Collections
             
             if (newKeyProp.isExpanded)
             {
-               // EditorGUI.DrawRect(box, Color.yellow);
-                object o = property.GetValue();
+
+                /*object o = property.GetValue();
                 System.Type t = o.GetType();
                 System.Reflection.PropertyInfo isValidProp=t.GetProperty("IsEditorAddKeyValid", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic |
                             System.Reflection.BindingFlags.Instance);
                 bool isValidKey=  (bool)isValidProp.GetValue(o,null);
-
+                */
+                bool isValidKey = property.FindPropertyRelative("isEditorAddKeyValid").boolValue;
+                string keyType = property.FindPropertyRelative("keyTypeName").stringValue;
+                string valueType = property.FindPropertyRelative("valueTypeName").stringValue;
                 EditorGUI.indentLevel++;
                 pos.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
                 
-                EditorGUI.PropertyField(pos, newKeyProp,new GUIContent("New entry key ("+ newKeyProp.GetFieldType() +")"),true);
+                EditorGUI.PropertyField(pos, newKeyProp,new GUIContent("New entry key ("+ keyType + ")"),true);
                 pos.y += keyHeight + EditorGUIUtility.standardVerticalSpacing; 
                 
-                EditorGUI.PropertyField(pos, newvalueProp, new GUIContent("New entry value(" + newvalueProp.GetFieldType() + ")"),true);
+                EditorGUI.PropertyField(pos, newvalueProp, new GUIContent("New entry value(" + valueType + ")"),true);
                 pos.y += valueHeight + EditorGUIUtility.standardVerticalSpacing;
                 Rect buttonPos = EditorGUI.IndentedRect(pos);
                 bool add=false;
@@ -368,12 +371,15 @@ namespace EyE.EditorUnity.Collections
                 if (add)
                 {
                     Undo.RecordObject(property.serializedObject.targetObject, "add to dictionary");
-
-                    System.Reflection.MethodInfo methodInfo = t.GetMethod("EditorAdd", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.FlattenHierarchy);
-                    methodInfo.Invoke(o, new object[0]);
-                    //t.BaseType.InvokeMember("EditorAdd", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.NonPublic |
-                      //      System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.InvokeMethod, null, o, new object[0]);
-                    
+                    SerializedProperty pairKListProperty = property.FindPropertyRelative("pairKList");
+                    SerializedProperty pairVListProperty = property.FindPropertyRelative("pairVList");
+                    int newIndex = pairKListProperty.arraySize++;
+                    SerializedProperty newListElementKeyProperty = pairKListProperty.GetArrayElementAtIndex(newIndex);
+                    TryCopyFromTo(newKeyProp, newListElementKeyProperty);
+                    pairVListProperty.arraySize++;
+                    SerializedProperty newListElementValueProperty = pairVListProperty.GetArrayElementAtIndex(newIndex);
+                    TryCopyFromTo(newvalueProp, newListElementValueProperty);
+                    property.serializedObject.ApplyModifiedProperties();
                 }
                 EditorGUI.indentLevel--;
             }
@@ -491,5 +497,88 @@ namespace EyE.EditorUnity.Collections
             rect.yMax -= thickness;
             return rect;
         }
+
+        /// <summary>
+        /// Copies the value from one SerializedProperty (a) to another (b), ensuring the types match.
+        /// </summary>
+        /// <param name="a">The source SerializedProperty.</param>
+        /// <param name="b">The destination SerializedProperty.</param>
+        /// <returns>false if unable to copy for some reason</returns>
+        public bool TryCopyFromTo(SerializedProperty a, SerializedProperty b)
+        {
+            if (a.propertyType != b.propertyType)// || a.isArray)
+            {
+//                Debug.LogWarning("SerializedProperty types do not match. Cannot copy values.");
+                return false;
+            }
+
+            // Copy value based on type
+            switch (a.propertyType)
+            {
+                case SerializedPropertyType.Integer:
+                    b.intValue = a.intValue;
+                    break;
+                case SerializedPropertyType.Boolean:
+                    b.boolValue = a.boolValue;
+                    break;
+                case SerializedPropertyType.Float:
+                    b.floatValue = a.floatValue;
+                    break;
+                case SerializedPropertyType.String:
+                    b.stringValue = a.stringValue;
+                    break;
+                case SerializedPropertyType.ObjectReference:
+                    b.objectReferenceValue = a.objectReferenceValue;
+                    break;
+                case SerializedPropertyType.Enum:
+                    b.enumValueIndex = a.enumValueIndex;
+                    break;
+                case SerializedPropertyType.Vector2:
+                    b.vector2Value = a.vector2Value;
+                    break;
+                case SerializedPropertyType.Vector3:
+                    b.vector3Value = a.vector3Value;
+                    break;
+                case SerializedPropertyType.Vector4:
+                    b.vector4Value = a.vector4Value;
+                    break;
+                case SerializedPropertyType.Color:
+                    b.colorValue = a.colorValue;
+                    break;
+                case SerializedPropertyType.Bounds:
+                    b.boundsValue = a.boundsValue;
+                    break;
+                case SerializedPropertyType.Rect:
+                    b.rectValue = a.rectValue;
+                    break;
+                case SerializedPropertyType.ArraySize:
+                    b.arraySize = a.arraySize;
+                    break;
+                case SerializedPropertyType.Character:
+                    b.stringValue = a.stringValue;
+                    break;
+                case SerializedPropertyType.LayerMask:
+                    b.intValue = a.intValue;
+                    break;
+                case SerializedPropertyType.ManagedReference:
+                    b.managedReferenceValue = a.managedReferenceValue;
+                    break;
+                case SerializedPropertyType.Vector2Int:
+                    b.vector2IntValue = a.vector2IntValue;
+                    break;
+                case SerializedPropertyType.Vector3Int:
+                    b.vector3IntValue = a.vector3IntValue;
+                    break;
+                case SerializedPropertyType.Quaternion:
+                    b.quaternionValue = a.quaternionValue;
+                    break;
+                default:
+                    //                  Debug.LogWarning("Unsupported property type: " + a.propertyType);
+                    return false;
+                    break;
+            }
+            return true;
+        }
+        
     }
 }

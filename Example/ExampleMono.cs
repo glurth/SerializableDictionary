@@ -19,6 +19,14 @@ public class SampleDataClass
 [System.Serializable]
 public class SampleDataByInt : SerializableDictionary<int, SampleDataClass> { }
 
+[System.Serializable]
+public class SampleHoldingDictionary
+{
+    public string name;
+    public SampleDataByInt dictionary;
+    public string otherData;
+}
+
 public class ExampleMono : MonoBehaviour
 {
     public int anInt;
@@ -27,4 +35,5 @@ public class ExampleMono : MonoBehaviour
     //this member will display properly in unity editor as it is a concrete, non-generic class
     public SampleDataByInt sampleDataByIntDic = new SampleDataByInt();
     public string aString;
+    public List<SampleHoldingDictionary> sampleClassList = new List<SampleHoldingDictionary>() { new SampleHoldingDictionary() };
 }
