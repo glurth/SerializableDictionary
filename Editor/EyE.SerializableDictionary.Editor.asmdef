@@ -1,5 +1,6 @@
 {
-    "name": "Glurth.SerializableDictionaryProject.Editor",
+    "name": "EyE.SerializableDictionary.Editor",
+    "rootNamespace": "",
     "references": [
         "Glurth.SerializableDictionaryProject"
     ],
