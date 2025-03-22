@@ -2,7 +2,7 @@
     "name": "EyE.SerializableDictionary.Editor",
     "rootNamespace": "",
     "references": [
-        "Glurth.SerializableDictionaryProject"
+        "EyE.SerializableDictionary.Runtime"
     ],
     "includePlatforms": [
         "Editor"
