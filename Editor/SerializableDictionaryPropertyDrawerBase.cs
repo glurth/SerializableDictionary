@@ -574,23 +574,18 @@ namespace EyE.EditorUnity.Collections
                     break;
                 case SerializedPropertyType.Generic:
                     {
-                        // Copy each field recursively
                         SerializedProperty aChild = a.Copy();
                         SerializedProperty bChild = b.Copy();
 
-                        aChild.Next(true); // Enter the first child
-                        bChild.Next(true);
-
-                        bool enterChildren = true;
-                        while (aChild.Next(enterChildren))
+                        if (aChild.Next(true) && bChild.Next(true))
                         {
-                            bChild.Next(enterChildren);
-                            TryCopyFromTo(aChild, bChild); // Recursive copy of all fields
-                            enterChildren = false;
+                            do
+                            {
+                                TryCopyFromTo(aChild, bChild);
+                            } while (aChild.Next(false) && bChild.Next(false));
                         }
                         return true;
                     }
-                    break;
                 default:
                     //                  Debug.LogWarning("Unsupported property type: " + a.propertyType);
                     return false;
