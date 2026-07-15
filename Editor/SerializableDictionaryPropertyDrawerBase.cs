@@ -572,6 +572,25 @@ namespace EyE.EditorUnity.Collections
                 case SerializedPropertyType.Quaternion:
                     b.quaternionValue = a.quaternionValue;
                     break;
+                case SerializedPropertyType.Generic:
+                    {
+                        // Copy each field recursively
+                        SerializedProperty aChild = a.Copy();
+                        SerializedProperty bChild = b.Copy();
+
+                        aChild.Next(true); // Enter the first child
+                        bChild.Next(true);
+
+                        bool enterChildren = true;
+                        while (aChild.Next(enterChildren))
+                        {
+                            bChild.Next(enterChildren);
+                            TryCopyFromTo(aChild, bChild); // Recursive copy of all fields
+                            enterChildren = false;
+                        }
+                        return true;
+                    }
+                    break;
                 default:
                     //                  Debug.LogWarning("Unsupported property type: " + a.propertyType);
                     return false;
